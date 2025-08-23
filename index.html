@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Hindustani Raags</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f3f3f3; }
+    input { padding: 8px; width: 300px; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px; border: 1px solid #ccc; }
+    tr.details { display: none; background: #eaeaea; }
+    span.highlight { background-color: yellow; }
+  </style>
+</head>
+<body>
+  <h1>Hindustani Raags</h1>
+  <input type="text" id="search" placeholder="Search aroha or avaroha...">
+  <table id="raagsTable">
+    <thead>
+      <tr>
+        <th>Name</th><th>Thaat</th><th>Aroha</th><th>Avaroha</th><th>Vadi</th><th>Samvadi</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <!-- Supabase JS library -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+  <script>
+    const SUPABASE_URL = "https://cxjfqwnmabyabhjhadjy.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4amZxd25tYWJ5YWJoamhhZGp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU5Njc2NDUsImV4cCI6MjA3MTU0MzY0NX0.qbI-CU_wgAioBihGx54RXpr4cBryhzIjc4C8iT5YAX0";
+
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function loadRaags(search="") {
+      let query = supabaseClient.from('raags').select('*');
+      if(search) {
+        // Case-sensitive search in aroha OR avaroha
+        query = query.or(`aroha.like.%${search}%,avaroha.like.%${search}%`);
+      }
+      const { data, error } = await query;
+
+      console.log("Error:", error);
+      console.log("Data returned:", data);
+
+      const tbody = document.querySelector("#raagsTable tbody");
+      tbody.innerHTML = "";
+      if(!data || data.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='6'>No data returned</td></tr>";
+        return;
+      }
+
+      function highlight(text, term) {
+        if (!term) return text;
+        const escapedTerm = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const regex = new RegExp(escapedTerm, 'g'); // case-sensitive
+        return text.replace(regex, `<span class="highlight">$&</span>`);
+      }
+
+      data.forEach(r => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${r.name}</td>
+          <td>${r.thaat}</td>
+          <td>${highlight(r.aroha, search)}</td>
+          <td>${highlight(r.avaroha, search)}</td>
+          <td>${r.vadi_swar}</td>
+          <td>${r.samvadi_swar}</td>
+        `;
+        tbody.appendChild(row);
+
+        const details = document.createElement("tr");
+        details.className = "details";
+        details.innerHTML = `<td colspan="6"><strong>Description:</strong> ${r.description}<br><strong>Notes:</strong> ${r.important_notes}</td>`;
+        tbody.appendChild(details);
+
+        row.addEventListener("click", () => {
+          details.style.display = details.style.display === "table-row" ? "none" : "table-row";
+        });
+      });
+    }
+
+    document.getElementById("search").addEventListener("input", e => loadRaags(e.target.value));
+    loadRaags();
+  </script>
+</body>
+</html>
