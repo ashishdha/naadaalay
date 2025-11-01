@@ -19,8 +19,9 @@
 	  <thead>
 		<tr>
 		  <th>ID</th>
-		  <th>Name</th>
+		  <th>Traditional Name</th>
 		  <th>Scale</th>
+		  <th>Scientific Name</th>
 		</tr>
 	  </thead>
 	  <tbody></tbody>
@@ -49,7 +50,7 @@
     try {
       let query = supabaseClient
         .from("thaat")
-        .select("id, name, scale");
+        .select("id, traditional_name, scale, name");
 
       const nums = parseInts(search);
       if (nums.length > 0) {
@@ -71,8 +72,9 @@
         const row = document.createElement("tr");
         row.innerHTML = `
           <td>${t.id}</td>
-          <td>${t.name ?? ""}</td>
+          <td>${t.traditional_name ?? ""}</td>
           <td>${Array.isArray(t.scale) ? t.scale.join(",") : (t.scale ?? "")}</td>
+          <td>${t.name ?? ""}</td>
         `;
         tbody.appendChild(row);
       });
