@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Hindustani Raags</title>
+  <title> Raags: A Searcheable Database</title>
   <style>
     body { font-family: sans-serif; padding: 20px; background: #f3f3f3; }
     input { padding: 8px; width: 300px; margin-bottom: 20px; }
+    h1 { text-align: center; }
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 10px; border: 1px solid #ccc; }
     tr.details { display: none; background: #eaeaea; }
@@ -12,33 +13,23 @@
   </style>
 </head>
 <body>
-	<h2>Raags</h2>
+	<h1>Hindustaanee Raags: A Searcheable Database</h1>
 	<input type="text" id="raagSearch" placeholder="Search Raags">
 	<table id="raagsTable" border="1">
 	  <thead>
 		<tr>
-		  <th>ID</th>
-		  <th>Name</th>
 		  <th>Thaat</th>
+		  <th>Raag Counter</th>
 		  <th>Aaroh</th>
 		  <th>Avaroh</th>
+		  <th>Name</th>
 		</tr>
 	  </thead>
 	  <tbody></tbody>
 	</table>
 
-	<h2>Thaats</h2>
-	<input type="text" id="thaatSearch" placeholder="Search Thaats">
-	<table id="thaatTable" border="1">
-	  <thead>
-		<tr>
-		  <th>ID</th>
-		  <th>Name</th>
-		  <th>Scale</th>
-		</tr>
-	  </thead>
-	  <tbody></tbody>
-	</table>
+	<h4>Thaats</h4>
+	<a href="https://ashishdha.github.io/naadaalay/thaat.html">See the full table of 32 thaaTs</a> 
 
 <!-- Supabase JS library -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
@@ -63,7 +54,7 @@
     try {
       let query = supabaseClient
         .from("raags")
-        .select("id, name, thaat, aaroh, avaroh");
+        .select("thaat, raag_counter, aaroh, avaroh, name");
 
       const nums = parseInts(search);
       if (nums.length > 0) {
@@ -86,11 +77,11 @@
       data.forEach(r => {
         const row = document.createElement("tr");
         row.innerHTML = `
-          <td>${r.id}</td>
-          <td>${r.name ?? ""}</td>
           <td>${r.thaat ?? ""}</td>
+          <td>${r.raag_counter}</td>
           <td>${Array.isArray(r.aaroh) ? r.aaroh.join(",") : (r.aaroh ?? "")}</td>
           <td>${Array.isArray(r.avaroh) ? r.avaroh.join(",") : (r.avaroh ?? "")}</td>
+          <td>${r.name ?? ""}</td>
         `;
         tbody.appendChild(row);
       });
@@ -106,52 +97,6 @@
   });
   loadRaags();
 
-  // -------------------------
-  // Load Thaats (id, name, scale)
-  // Exact integer set match on 'scale' ONLY
-  // -------------------------
-  async function loadThaats(search = "") {
-    try {
-      let query = supabaseClient
-        .from("thaat")
-        .select("id, name, scale");
-
-      const nums = parseInts(search);
-      if (nums.length > 0) {
-        // Use QueryBuilder .contains for array @>
-        query = query.contains("scale", nums);
-      }
-
-      const { data, error } = await query;
-      if (error) throw error;
-
-      const tbody = document.querySelector("#thaatTable tbody");
-      tbody.innerHTML = "";
-      if (!data || data.length === 0) {
-        tbody.innerHTML = "<tr><td colspan='3'>No thaats found</td></tr>";
-        return;
-      }
-
-      data.forEach(t => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${t.id}</td>
-          <td>${t.name ?? ""}</td>
-          <td>${Array.isArray(t.scale) ? t.scale.join(",") : (t.scale ?? "")}</td>
-        `;
-        tbody.appendChild(row);
-      });
-    } catch (err) {
-      console.error("Thaats load error:", err);
-      const tbody = document.querySelector("#thaatTable tbody");
-      if (tbody) tbody.innerHTML = "<tr><td colspan='3'>Error loading thaats</td></tr>";
-    }
-  }
-
-  document.getElementById("thaatSearch").addEventListener("input", (e) => {
-    loadThaats(e.target.value);
-  });
-  loadThaats();
 </script>
 </body>
 </html>
