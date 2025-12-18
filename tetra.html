@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Hindustaanee Tetrachords: 8 + 4 Parent Half-Scales</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f3f3f3; }
+    h1 { text-align: center; }
+    input { padding: 8px; width: 300px; margin-bottom: 20px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px; border: 1px solid #ccc; }
+    tr.details { display: none; background: #eaeaea; }
+    span.highlight { background-color: yellow; }
+  </style>
+</head>
+<body>
+	<h1>Tetrachords - Poorvaang</h1>
+	<input type="text" id="thaatSearch" placeholder="Search Poorvaang Tetrachords">
+	<table id="thaatTable" border="1">
+	  <thead>
+		<tr>
+		  <th>ID</th>
+		  <th>Name</th>
+		  <th>Scale</th>
+		  <th>Alternate Name</th>
+		  <th>Vikrit Svar</th>
+		</tr>
+	  </thead>
+	  <tbody></tbody>
+	</table>
+
+	<h1>Tetrachords - Uttaraang</h1>
+	<input type="text" id="uttaraangSearch" placeholder="Search Uttaraang Tetrachords">
+	<table id="uttaraangTable" border="1">
+	  <thead>
+		<tr>
+		  <th>ID</th>
+		  <th>Name</th>
+		  <th>Scale</th>
+		  <th>Alternate Name</th>
+		  <th>Vikrit Svar</th>
+		</tr>
+	  </thead>
+	  <tbody></tbody>
+	</table>
+
+<!-- Supabase JS library -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+<script>
+  const SUPABASE_URL = "https://cxjfqwnmabyabhjhadjy.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN4amZxd25tYWJ5YWJoamhhZGp5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU5Njc2NDUsImV4cCI6MjA3MTU0MzY0NX0.qbI-CU_wgAioBihGx54RXpr4cBryhzIjc4C8iT5YAX0";
+  const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // Helper: turn "0 5 7" into [0,5,7], ignoring non-numbers
+  function parseInts(raw) {
+    return raw.trim()
+      .split(/[\s,]+/)
+      .map(x => parseInt(x, 10))
+      .filter(Number.isFinite);
+  }
+
+  // -------------------------
+  // Load Thaats (id, name, scale)
+  // Exact integer set match on 'scale' ONLY
+  // -------------------------
+  async function loadThaats(search = "") {
+    try {
+      let query = supabaseClient
+        .from("poorvaang_tetrachord")
+        .select("id, name, scale, alt_name, vikrit_svar");
+
+      const nums = parseInts(search);
+      if (nums.length > 0) {
+        // Use QueryBuilder .contains for array @>
+        query = query.contains("scale", nums);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+
+      const tbody = document.querySelector("#thaatTable tbody");
+      tbody.innerHTML = "";
+      if (!data || data.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='5'>No Tetrachords found</td></tr>";
+        return;
+      }
+
+      data.forEach(t => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${t.id}</td>
+          <td>${t.name ?? ""}</td>
+          <td>${Array.isArray(t.scale) ? t.scale.join(",") : (t.scale ?? "")}</td>
+          <td>${t.alt_name ?? ""}</td>
+          <td>${t.vikrit_svar}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    } catch (err) {
+      console.error("Tetrachords load error:", err);
+      const tbody = document.querySelector("#thaatTable tbody");
+      if (tbody) tbody.innerHTML = "<tr><td colspan='3'>Error loading Tetrachords</td></tr>";
+    }
+  }
+
+  document.getElementById("thaatSearch").addEventListener("input", (e) => {
+    loadThaats(e.target.value);
+  });
+  loadThaats();
+
+  // -------------------------
+  // Load Uttaraang 
+  // Exact integer set match on 'scale' ONLY
+  // -------------------------
+  async function loadUtteraangs(search = "") {
+    try {
+      let query = supabaseClient
+        .from("uttaraang_tetrachord")
+        .select("id, name, scale, alt_name, vikrit_svar");
+
+      const nums = parseInts(search);
+      if (nums.length > 0) {
+        // Use QueryBuilder .contains for array @>
+        query = query.contains("scale", nums);
+      }
+
+      const { data, error } = await query;
+      if (error) throw error;
+
+      const tbody = document.querySelector("#uttaraangTable tbody");
+      tbody.innerHTML = "";
+      if (!data || data.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='5'>No Tetrachords found</td></tr>";
+        return;
+      }
+
+      data.forEach(t => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${t.id}</td>
+          <td>${t.name ?? ""}</td>
+          <td>${Array.isArray(t.scale) ? t.scale.join(",") : (t.scale ?? "")}</td>
+          <td>${t.alt_name ?? ""}</td>
+          <td>${t.vikrit_svar}</td>
+        `;
+        tbody.appendChild(row);
+      });
+    } catch (err) {
+      console.error("Tetrachords load error:", err);
+      const tbody = document.querySelector("#uttaraangTable tbody");
+      if (tbody) tbody.innerHTML = "<tr><td colspan='3'>Error loading Tetrachords</td></tr>";
+    }
+  }
+
+  document.getElementById("uttaraangSearch").addEventListener("input", (e) => {
+    loadUtteraangs(e.target.value);
+  });
+  loadUtteraangs();
+
+</script>
+</body>
+</html>
