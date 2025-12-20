@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Naadaalay — Hindustani Raags & Thaats</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Core styles -->
+  <link rel="stylesheet" href="styles.css" />
+
+  <!-- Accessibility / SEO -->
+  <meta name="description" content="Interactive database of Hindustani Raags and Thaats with sortable, filterable tables." />
+</head>
+
+<body>
+  <header class="app-header">
+    <h1>Naadaalay</h1>
+    <p class="subtitle">Hindustani Raags & Thaats Database</p>
+  </header>
+
+  <main class="app-main">
+
+    <!-- =========================
+         RAAGS SECTION
+    ========================== -->
+    <section id="raags-section" class="data-section">
+      <h2>Raags</h2>
+
+      <!-- Column visibility controls -->
+      <details class="column-controls" open>
+        <summary>Show / Hide Columns</summary>
+        <div id="raags-column-toggles" class="toggle-grid">
+          <!-- populated by JS -->
+        </div>
+      </details>
+
+      <!-- Filters -->
+      <div class="filters" id="raags-filters">
+        <!-- populated dynamically based on column types -->
+      </div>
+
+      <!-- Table wrapper for horizontal scroll on mobile -->
+      <div class="table-wrapper">
+        <table id="raags-table" class="data-table">
+          <thead>
+            <tr id="raags-header-row">
+              <!-- populated by JS -->
+            </tr>
+          </thead>
+          <tbody id="raags-body">
+            <tr>
+              <td colspan="100%" class="loading">Loading raags…</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- =========================
+         THAATS SECTION
+    ========================== -->
+    <section id="thaats-section" class="data-section">
+      <h2>Thaats</h2>
+
+      <!-- Column visibility controls -->
+      <details class="column-controls" open>
+        <summary>Show / Hide Columns</summary>
+        <div id="thaats-column-toggles" class="toggle-grid">
+          <!-- populated by JS -->
+        </div>
+      </details>
+
+      <!-- Filters -->
+      <div class="filters" id="thaats-filters">
+        <!-- populated dynamically -->
+      </div>
+
+      <div class="table-wrapper">
+        <table id="thaats-table" class="data-table">
+          <thead>
+            <tr id="thaats-header-row">
+              <!-- populated by JS -->
+            </tr>
+          </thead>
+          <tbody id="thaats-body">
+            <tr>
+              <td colspan="100%" class="loading">Loading thaats…</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="app-footer">
+    <span>© Naadaalay</span>
+  </footer>
+
+  <!-- =========================
+       SCRIPT DEPENDENCIES
+       (order is important)
+  ========================== -->
+
+  <!-- Supabase client -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
+
+  <!-- Utilities -->
+  <script src="utils.js"></script>
+
+  <!-- Integer → Roman sargam mapping -->
+  <script src="svara-map.js"></script>
+
+  <!-- Supabase queries & schema introspection -->
+  <script src="supabase.js"></script>
+
+  <!-- Table rendering, sorting, filters, persistence -->
+  <script src="tables.js"></script>
+
+</body>
+</html>
